@@ -1,0 +1,14 @@
+config:
+  target: https://api.todoist.com
+  phases:
+    - duration: 1
+      arrivalRate: 1
+      name: Phase 1
+  defaults:
+    headers:
+      Authorization: Bearer {{ $processEnvironment.TOKEN }}
+      Content-type: application/json
+scenarios:
+  - flow:
+      - get:
+          url: "/rest/v1/projects"
