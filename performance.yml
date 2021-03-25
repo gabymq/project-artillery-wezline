@@ -19,21 +19,15 @@ scenarios:
       # Create a task
       - post:
           url: "/rest/v1/tasks"
-          json:
-            content: "{{ generatedContent }}"
-            due_date: "{{ formattedDate }}"
-            due_lang: "en"
-            priority: 4
           capture:
             - json: "$.id"
               as: "taskID"
           expect:
             - statusCode: 200
             - contentType: json
-      - log: "Task ID: {{ id }}"
       # Get an active task
       - get:
-          url: "/rest/v1/tasks/{{ taskID }}"
+          url: "/rest/v1/tasks/{{ id }}"
           capture:
             - json: "$.content"
               as: "contentType"
