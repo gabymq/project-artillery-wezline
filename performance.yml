@@ -5,10 +5,10 @@ config:
       arrivalRate: 5
       name: "Phase 1"
     - duration: 120
-      arrivalRate: 20
+      arrivalRate: 10
       name: "Phase 2" 
     - duration: 80
-      arrivalRate: 8
+      arrivalRate: 5
       name: "Phase 3" 
   defaults:
     headers:
@@ -16,34 +16,56 @@ config:
       Content-type: application/json
 scenarios:
   - flow:
-      - get:
-          url: "/rest/v1/projects"
+      # Create a task
       - post:
-          url: "/rest/v1/projects"
+          url: "/rest/v1/tasks"
           json:
-           name: "TestGabby"
+            content: "{{ generatedContent }}"
+            due_date: "{{ formattedDate }}"
+            due_lang: "en"
+            priority: 4
           capture:
-           json: "$.id" 
-           as: "id"
-      - log: "Current id is {{ id }}"
+            - json: "$.id"
+              as: "taskID"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - log: "Task ID: {{ id }}"
+      # Get an active task
       - get:
-          url: "/rest/v1/projects/projects/{{ id }}"
+          url: "/rest/v1/tasks/{{ taskID }}"
+          capture:
+            - json: "$.content"
+              as: "retrievedContent"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      # Get active tasks
+      - get:
+          url: "/rest/v1/tasks"
+          expect:
+            - statusCode: 200
+      # Updating a task by ID
       - post:
-          url: "/rest/v1/projects/projects/{{ id }}"
+          url: "/rest/v1/tasks/projects/projects/{{ id }}"
           json:
-           name: "WizelineTest"
+            content: "Updated task"
+          expect:
+            - statusCode: 204
+      #  Status task to 'complete' 
+      - post:
+          url: "/rest/v1/tasks/projects/projects{{ id }}"
+          expect:
+            - statusCode: 204
+      # Reopen completed 
+      - post:
+          url: "/rest/v1/tasks/projects/projects{{ id }}/reopen"
+          expect:
+            - statusCode: 204
+      # Delete task by ID
       - delete:
-          url: "/rest/v1/projects/projects/{{ id }}"
-      - get:
-          url: "/rest/v1/tasks/projects/projects/{{ id }}"
-      - put: 
-          url: "/rest/v1/tasks/projects/projects/{{ id }}"
-          json:
-          name: "GabbyTest"
-      - post: 
-          url: "/rest/v1/tasks/projects/projects/{{ id }}/reopen"
-          json:
-          name: "reopen"
-
+          url: "/rest/v1/tasks/projects/projects{{ id }}"
+          expect:
+            - statusCode: 204
 
 
