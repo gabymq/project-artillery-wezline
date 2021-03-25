@@ -36,7 +36,7 @@ scenarios:
           url: "/rest/v1/tasks/{{ taskID }}"
           capture:
             - json: "$.content"
-              as: "retrievedContent"
+              as: "contentType"
           expect:
             - statusCode: 200
             - contentType: json
